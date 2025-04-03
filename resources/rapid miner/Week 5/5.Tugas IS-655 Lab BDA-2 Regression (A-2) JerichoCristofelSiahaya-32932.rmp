@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.8.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="9.8.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="9.8.001" expanded="true" height="68" name="Retrieve 5.Tugas IS-655 Lab BDA-2 Regression Boston_housing" width="90" x="45" y="34">
+        <parameter key="repository_entry" value="//Local Repository/5.Tugas IS-655 Lab BDA-2 Regression Boston_housing"/>
+      </operator>
+      <operator activated="true" class="shuffle" compatibility="9.8.001" expanded="true" height="82" name="Shuffle" width="90" x="179" y="34">
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+      </operator>
+      <operator activated="true" class="filter_example_range" compatibility="9.8.001" expanded="true" height="82" name="Filter Example Range" width="90" x="313" y="34">
+        <parameter key="first_example" value="1"/>
+        <parameter key="last_example" value="450"/>
+        <parameter key="invert_filter" value="false"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="9.8.001" expanded="true" height="82" name="Set Role" width="90" x="447" y="34">
+        <parameter key="attribute_name" value="MEDV"/>
+        <parameter key="target_role" value="label"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="split_validation" compatibility="9.8.001" expanded="true" height="124" name="Validation" width="90" x="447" y="136">
+        <parameter key="create_complete_model" value="false"/>
+        <parameter key="split" value="relative"/>
+        <parameter key="split_ratio" value="0.7"/>
+        <parameter key="training_set_size" value="100"/>
+        <parameter key="test_set_size" value="-1"/>
+        <parameter key="sampling_type" value="shuffled sampling"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+        <process expanded="true">
+          <operator activated="true" class="linear_regression" compatibility="9.8.001" expanded="true" height="103" name="Linear Regression" width="90" x="112" y="85">
+            <parameter key="feature_selection" value="none"/>
+            <parameter key="alpha" value="0.05"/>
+            <parameter key="max_iterations" value="10"/>
+            <parameter key="forward_alpha" value="0.05"/>
+            <parameter key="backward_alpha" value="0.05"/>
+            <parameter key="eliminate_colinear_features" value="true"/>
+            <parameter key="min_tolerance" value="0.05"/>
+            <parameter key="use_bias" value="true"/>
+            <parameter key="ridge" value="1.0E-8"/>
+          </operator>
+          <connect from_port="training" to_op="Linear Regression" to_port="training set"/>
+          <connect from_op="Linear Regression" from_port="model" to_port="model"/>
+          <portSpacing port="source_training" spacing="0"/>
+          <portSpacing port="sink_model" spacing="0"/>
+          <portSpacing port="sink_through 1" spacing="0"/>
+        </process>
+        <process expanded="true">
+          <operator activated="true" class="apply_model" compatibility="9.8.001" expanded="true" height="82" name="Apply Model" width="90" x="45" y="34">
+            <list key="application_parameters"/>
+            <parameter key="create_view" value="false"/>
+          </operator>
+          <operator activated="true" class="performance_regression" compatibility="9.8.001" expanded="true" height="82" name="Performance" width="90" x="179" y="34">
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="root_mean_squared_error" value="true"/>
+            <parameter key="absolute_error" value="false"/>
+            <parameter key="relative_error" value="false"/>
+            <parameter key="relative_error_lenient" value="false"/>
+            <parameter key="relative_error_strict" value="false"/>
+            <parameter key="normalized_absolute_error" value="false"/>
+            <parameter key="root_relative_squared_error" value="false"/>
+            <parameter key="squared_error" value="true"/>
+            <parameter key="correlation" value="true"/>
+            <parameter key="squared_correlation" value="true"/>
+            <parameter key="prediction_average" value="false"/>
+            <parameter key="spearman_rho" value="false"/>
+            <parameter key="kendall_tau" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+          </operator>
+          <connect from_port="model" to_op="Apply Model" to_port="model"/>
+          <connect from_port="test set" to_op="Apply Model" to_port="unlabelled data"/>
+          <connect from_op="Apply Model" from_port="labelled data" to_op="Performance" to_port="labelled data"/>
+          <connect from_op="Performance" from_port="performance" to_port="averagable 1"/>
+          <portSpacing port="source_model" spacing="0"/>
+          <portSpacing port="source_test set" spacing="0"/>
+          <portSpacing port="source_through 1" spacing="0"/>
+          <portSpacing port="sink_averagable 1" spacing="0"/>
+          <portSpacing port="sink_averagable 2" spacing="0"/>
+        </process>
+      </operator>
+      <operator activated="true" class="filter_example_range" compatibility="9.8.001" expanded="true" height="82" name="Filter Example Range (2)" width="90" x="112" y="187">
+        <parameter key="first_example" value="451"/>
+        <parameter key="last_example" value="506"/>
+        <parameter key="invert_filter" value="false"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="9.8.001" expanded="true" height="82" name="Set Role (2)" width="90" x="246" y="187">
+        <parameter key="attribute_name" value="MEDV"/>
+        <parameter key="target_role" value="prediction"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="apply_model" compatibility="9.8.001" expanded="true" height="82" name="Apply Model (2)" width="90" x="380" y="289">
+        <list key="application_parameters"/>
+        <parameter key="create_view" value="false"/>
+      </operator>
+      <operator activated="true" class="rename" compatibility="9.8.001" expanded="true" height="82" name="Rename" width="90" x="514" y="289">
+        <parameter key="old_name" value="prediction(MEDV)"/>
+        <parameter key="new_name" value="predictedMEDV"/>
+        <list key="rename_additional_attributes"/>
+      </operator>
+      <operator activated="true" class="generate_attributes" compatibility="9.8.001" expanded="true" height="82" name="Generate Attributes" width="90" x="581" y="187">
+        <list key="function_descriptions"/>
+        <parameter key="keep_all" value="true"/>
+      </operator>
+      <connect from_op="Retrieve 5.Tugas IS-655 Lab BDA-2 Regression Boston_housing" from_port="output" to_op="Shuffle" to_port="example set input"/>
+      <connect from_op="Shuffle" from_port="example set output" to_op="Filter Example Range" to_port="example set input"/>
+      <connect from_op="Filter Example Range" from_port="example set output" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Filter Example Range" from_port="original" to_op="Filter Example Range (2)" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Validation" to_port="training"/>
+      <connect from_op="Validation" from_port="model" to_op="Apply Model (2)" to_port="model"/>
+      <connect from_op="Validation" from_port="averagable 1" to_port="result 1"/>
+      <connect from_op="Filter Example Range (2)" from_port="example set output" to_op="Set Role (2)" to_port="example set input"/>
+      <connect from_op="Set Role (2)" from_port="example set output" to_op="Apply Model (2)" to_port="unlabelled data"/>
+      <connect from_op="Apply Model (2)" from_port="labelled data" to_op="Rename" to_port="example set input"/>
+      <connect from_op="Rename" from_port="example set output" to_op="Generate Attributes" to_port="example set input"/>
+      <connect from_op="Generate Attributes" from_port="example set output" to_port="result 2"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>

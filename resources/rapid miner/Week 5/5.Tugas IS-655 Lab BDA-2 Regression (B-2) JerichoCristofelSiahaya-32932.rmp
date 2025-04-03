@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="9.8.001">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="9.8.001" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="retrieve" compatibility="9.8.001" expanded="true" height="68" name="Retrieve 5.Tugas IS-655 Lab BDA-2 Regression credit_scores" width="90" x="45" y="34">
+        <parameter key="repository_entry" value="//Local Repository/5.Tugas IS-655 Lab BDA-2 Regression credit_scores"/>
+      </operator>
+      <operator activated="true" class="set_role" compatibility="9.8.001" expanded="true" height="82" name="Set Role" width="90" x="112" y="187">
+        <parameter key="attribute_name" value="DEFAULT"/>
+        <parameter key="target_role" value="label"/>
+        <list key="set_additional_roles"/>
+      </operator>
+      <operator activated="true" class="split_validation" compatibility="9.8.001" expanded="true" height="124" name="Validation" width="90" x="179" y="34">
+        <parameter key="create_complete_model" value="false"/>
+        <parameter key="split" value="relative"/>
+        <parameter key="split_ratio" value="0.7"/>
+        <parameter key="training_set_size" value="100"/>
+        <parameter key="test_set_size" value="-1"/>
+        <parameter key="sampling_type" value="automatic"/>
+        <parameter key="use_local_random_seed" value="false"/>
+        <parameter key="local_random_seed" value="1992"/>
+        <process expanded="true">
+          <operator activated="true" class="metacost" compatibility="9.8.001" expanded="true" height="82" name="MetaCost" width="90" x="112" y="85">
+            <parameter key="cost_matrix" value="[0.0 1.0;1.0 0.0]"/>
+            <parameter key="use_subset_for_training" value="1.0"/>
+            <parameter key="iterations" value="10"/>
+            <parameter key="sampling_with_replacement" value="true"/>
+            <parameter key="use_local_random_seed" value="false"/>
+            <parameter key="local_random_seed" value="1992"/>
+            <process expanded="true">
+              <operator activated="true" class="h2o:logistic_regression" compatibility="9.8.001" expanded="true" height="124" name="Logistic Regression" width="90" x="246" y="85">
+                <parameter key="solver" value="AUTO"/>
+                <parameter key="reproducible" value="false"/>
+                <parameter key="maximum_number_of_threads" value="4"/>
+                <parameter key="use_regularization" value="false"/>
+                <parameter key="lambda_search" value="false"/>
+                <parameter key="number_of_lambdas" value="0"/>
+                <parameter key="lambda_min_ratio" value="0.0"/>
+                <parameter key="early_stopping" value="true"/>
+                <parameter key="stopping_rounds" value="3"/>
+                <parameter key="stopping_tolerance" value="0.001"/>
+                <parameter key="standardize" value="true"/>
+                <parameter key="non-negative_coefficients" value="false"/>
+                <parameter key="add_intercept" value="true"/>
+                <parameter key="compute_p-values" value="true"/>
+                <parameter key="remove_collinear_columns" value="true"/>
+                <parameter key="missing_values_handling" value="MeanImputation"/>
+                <parameter key="max_iterations" value="0"/>
+                <parameter key="max_runtime_seconds" value="0"/>
+              </operator>
+              <connect from_port="training set" to_op="Logistic Regression" to_port="training set"/>
+              <connect from_op="Logistic Regression" from_port="model" to_port="model"/>
+              <portSpacing port="source_training set" spacing="0"/>
+              <portSpacing port="sink_model" spacing="0"/>
+            </process>
+          </operator>
+          <connect from_port="training" to_op="MetaCost" to_port="training set"/>
+          <connect from_op="MetaCost" from_port="model" to_port="model"/>
+          <portSpacing port="source_training" spacing="0"/>
+          <portSpacing port="sink_model" spacing="0"/>
+          <portSpacing port="sink_through 1" spacing="0"/>
+        </process>
+        <process expanded="true">
+          <operator activated="true" class="apply_model" compatibility="9.8.001" expanded="true" height="82" name="Apply Model" width="90" x="45" y="34">
+            <list key="application_parameters"/>
+            <parameter key="create_view" value="false"/>
+          </operator>
+          <operator activated="true" class="performance_binominal_classification" compatibility="9.8.001" expanded="true" height="82" name="Performance" width="90" x="179" y="34">
+            <parameter key="manually_set_positive_class" value="false"/>
+            <parameter key="main_criterion" value="first"/>
+            <parameter key="accuracy" value="true"/>
+            <parameter key="classification_error" value="false"/>
+            <parameter key="kappa" value="false"/>
+            <parameter key="AUC (optimistic)" value="false"/>
+            <parameter key="AUC" value="false"/>
+            <parameter key="AUC (pessimistic)" value="false"/>
+            <parameter key="precision" value="false"/>
+            <parameter key="recall" value="false"/>
+            <parameter key="lift" value="false"/>
+            <parameter key="fallout" value="false"/>
+            <parameter key="f_measure" value="false"/>
+            <parameter key="false_positive" value="false"/>
+            <parameter key="false_negative" value="false"/>
+            <parameter key="true_positive" value="false"/>
+            <parameter key="true_negative" value="false"/>
+            <parameter key="sensitivity" value="false"/>
+            <parameter key="specificity" value="false"/>
+            <parameter key="youden" value="false"/>
+            <parameter key="positive_predictive_value" value="false"/>
+            <parameter key="negative_predictive_value" value="false"/>
+            <parameter key="psep" value="false"/>
+            <parameter key="skip_undefined_labels" value="true"/>
+            <parameter key="use_example_weights" value="true"/>
+          </operator>
+          <connect from_port="model" to_op="Apply Model" to_port="model"/>
+          <connect from_port="test set" to_op="Apply Model" to_port="unlabelled data"/>
+          <connect from_op="Apply Model" from_port="labelled data" to_op="Performance" to_port="labelled data"/>
+          <connect from_op="Performance" from_port="performance" to_port="averagable 1"/>
+          <portSpacing port="source_model" spacing="0"/>
+          <portSpacing port="source_test set" spacing="0"/>
+          <portSpacing port="source_through 1" spacing="0"/>
+          <portSpacing port="sink_averagable 1" spacing="0"/>
+          <portSpacing port="sink_averagable 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Retrieve 5.Tugas IS-655 Lab BDA-2 Regression credit_scores" from_port="output" to_op="Set Role" to_port="example set input"/>
+      <connect from_op="Set Role" from_port="example set output" to_op="Validation" to_port="training"/>
+      <connect from_op="Validation" from_port="model" to_port="result 1"/>
+      <connect from_op="Validation" from_port="averagable 1" to_port="result 2"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+      <portSpacing port="sink_result 3" spacing="0"/>
+    </process>
+  </operator>
+</process>

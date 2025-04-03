@@ -1,0 +1,9 @@
+You can see the data in the results. Can you find out how missing values are shown?
+- Menggunakan tanda tanya ("?")
+The Statistics tab shows summaries of the data in the columns. 
+How many people did travel in First class? 
+- 323
+And how many people did not survive the Titanic accident?
+- 809
+Play around with some of the Charts if you like. Can you see some interesting patterns?
+- Penumpang terbanyak berada deck kelas 3 kapal dengan total jumlah 709.
